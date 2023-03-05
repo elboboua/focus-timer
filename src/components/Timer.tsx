@@ -7,6 +7,7 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import { Pause } from "@mui/icons-material";
 import { HistoryContext } from "../contexts/HistoryContext";
 import { formatSecondsToClock } from "../utils/time.utils";
+import { CircularProgress } from "@mui/material";
 
 const iconStyle: React.CSSProperties = {
     fontSize: "80px",
@@ -95,49 +96,72 @@ export default function Timer({}: Props) {
                 width: "350px",
             }}
         >
-            <Box
-                style={{
-                    height: "350px",
-                    width: "350px",
-                    border: `3px solid ${
-                        timerMode === "work" ? COLORS.WORK : COLORS.BREAK
-                    }`,
-                    borderRadius: "50%",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    flexDirection: "column",
-                }}
-            >
-                <Box>
-                    <span>
-                        {timerState === "running"
-                            ? timerMode === "break"
-                                ? "Rest!"
-                                : "Work!"
-                            : "Ready!"}
-                    </span>
-                </Box>
-
+            <Box sx={{ position: "relative", display: "inline-flex" }}>
+                <CircularProgress
+                    size={"350px"}
+                    variant="determinate"
+                    value={(timeRemaining / timeSet) * 100}
+                    thickness={0.5}
+                    // set the color of the progress bar
+                    sx={{
+                        color:
+                            timerMode === "work" ? COLORS.WORK : COLORS.BREAK,
+                    }}
+                />
                 <Box
-                    style={{
-                        fontSize: "60px",
-                        color: COLORS.BLACK,
-                        height: "75px",
+                    sx={{
+                        top: 0,
+                        left: 0,
+                        bottom: 0,
+                        right: 0,
+                        position: "absolute",
                         display: "flex",
-                        justifyContent: "center",
                         alignItems: "center",
+                        justifyContent: "center",
                     }}
                 >
-                    {formatSecondsToClock(timeRemaining)}
-                </Box>
+                    <Box
+                        style={{
+                            height: "350px",
+                            width: "350px",
+                            borderRadius: "50%",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            flexDirection: "column",
+                        }}
+                    >
+                        <Box>
+                            <span>
+                                {timerState === "running"
+                                    ? timerMode === "break"
+                                        ? "Rest!"
+                                        : "Work!"
+                                    : "Ready!"}
+                            </span>
+                        </Box>
 
-                <Box onClick={toggleTimerState}>
-                    {timerState === "paused" ? (
-                        <PlayArrowIcon style={iconStyle} />
-                    ) : (
-                        <Pause style={iconStyle} />
-                    )}
+                        <Box
+                            style={{
+                                fontSize: "60px",
+                                color: COLORS.BLACK,
+                                height: "75px",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                            }}
+                        >
+                            {formatSecondsToClock(timeRemaining)}
+                        </Box>
+
+                        <Box onClick={toggleTimerState}>
+                            {timerState === "paused" ? (
+                                <PlayArrowIcon style={iconStyle} />
+                            ) : (
+                                <Pause style={iconStyle} />
+                            )}
+                        </Box>
+                    </Box>
                 </Box>
             </Box>
             {showQuote && (
