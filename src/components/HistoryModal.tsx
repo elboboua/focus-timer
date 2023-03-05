@@ -54,6 +54,7 @@ export default function HistoryModal({}: Props) {
                     <Box>
                         {history.map((item) => (
                             <Box
+                                key={item.id}
                                 sx={{
                                     display: "flex",
                                     justifyContent: "space-between",
