@@ -24,6 +24,9 @@ export default function Timer({}: Props) {
     const [timeSet, setTimeSet] = useState<number>(5);
     const { addHistory } = useContext(HistoryContext);
 
+    const [quote, setQuote] = useState("");
+    const [showQuote, setShowQuote] = useState(false);
+
     const toggleTimerState = () => {
         if (timerState === "running") {
             setTimerState("paused");
@@ -32,13 +35,24 @@ export default function Timer({}: Props) {
         }
     };
 
+    const fetchQuote = async () => {
+        const response = await fetch("http://localhost:5000/random.json");
+        const data = await response.json();
+        if (data.quote && data.author) {
+            setQuote(`${data.quote} - ${data.author}`);
+        }
+    };
+
     useEffect(() => {
         // If timer is running, start the countdown
         let interval: number | null = null;
         if (timerState === "running") {
+            setShowQuote(false);
             interval = setInterval(() => {
                 setTimeRemaining((prevTime) => {
                     if (prevTime === 0) {
+                        fetchQuote();
+                        setShowQuote(true);
                         setTimerState("paused");
                         // toggle timer mode
                         setTimerMode((prevMode) =>
@@ -78,48 +92,63 @@ export default function Timer({}: Props) {
     return (
         <Box
             style={{
-                height: "350px",
                 width: "350px",
-                border: `3px solid ${
-                    timerMode === "work" ? COLORS.WORK : COLORS.BREAK
-                }`,
-                borderRadius: "50%",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                flexDirection: "column",
             }}
         >
-            <Box>
-                <span>
-                    {timerState === "running"
-                        ? timerMode === "break"
-                            ? "Rest!"
-                            : "Work!"
-                        : "Ready!"}
-                </span>
-            </Box>
-
             <Box
                 style={{
-                    fontSize: "60px",
-                    color: COLORS.BLACK,
-                    height: "75px",
+                    height: "350px",
+                    width: "350px",
+                    border: `3px solid ${
+                        timerMode === "work" ? COLORS.WORK : COLORS.BREAK
+                    }`,
+                    borderRadius: "50%",
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
+                    flexDirection: "column",
                 }}
             >
-                {formatSecondsToClock(timeRemaining)}
-            </Box>
+                <Box>
+                    <span>
+                        {timerState === "running"
+                            ? timerMode === "break"
+                                ? "Rest!"
+                                : "Work!"
+                            : "Ready!"}
+                    </span>
+                </Box>
 
-            <Box onClick={toggleTimerState}>
-                {timerState === "paused" ? (
-                    <PlayArrowIcon style={iconStyle} />
-                ) : (
-                    <Pause style={iconStyle} />
-                )}
+                <Box
+                    style={{
+                        fontSize: "60px",
+                        color: COLORS.BLACK,
+                        height: "75px",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                    }}
+                >
+                    {formatSecondsToClock(timeRemaining)}
+                </Box>
+
+                <Box onClick={toggleTimerState}>
+                    {timerState === "paused" ? (
+                        <PlayArrowIcon style={iconStyle} />
+                    ) : (
+                        <Pause style={iconStyle} />
+                    )}
+                </Box>
             </Box>
+            {showQuote && (
+                <Box
+                    style={{
+                        marginTop: "20px",
+                    }}
+                >
+                    <span style={{ textAlign: "center" }}>{quote}</span>
+                </Box>
+            )}
         </Box>
     );
 }
