@@ -1,5 +1,5 @@
 import { Box } from "@mui/system";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { COLORS } from "../constants/colors";
 
 // Icons
@@ -12,6 +12,11 @@ import { CircularProgress } from "@mui/material";
 const iconStyle: React.CSSProperties = {
     fontSize: "80px",
     color: COLORS.BLACK,
+};
+
+const TIMER_DEFAULTS = {
+    WORK: 10,
+    REST: 5,
 };
 
 type Props = {};
@@ -27,6 +32,11 @@ export default function Timer({}: Props) {
 
     const [quote, setQuote] = useState("");
     const [showQuote, setShowQuote] = useState(false);
+    const chime = useRef(new Audio("/src/assets/sounds/bell.mp3")).current;
+
+    const playChime = () => {
+        chime.play();
+    };
 
     const toggleTimerState = () => {
         if (timerState === "running") {
@@ -52,6 +62,7 @@ export default function Timer({}: Props) {
             interval = setInterval(() => {
                 setTimeRemaining((prevTime) => {
                     if (prevTime === 0) {
+                        playChime();
                         fetchQuote();
                         setShowQuote(true);
                         setTimerState("paused");
@@ -60,8 +71,8 @@ export default function Timer({}: Props) {
                             prevMode === "work" ? "break" : "work"
                         );
                         if (timerMode === "work") {
-                            setTimeRemaining(5);
-                            setTimeSet(5);
+                            setTimeRemaining(TIMER_DEFAULTS.REST);
+                            setTimeSet(TIMER_DEFAULTS.REST);
                             addHistory({
                                 id: Math.random().toString(),
                                 type: "work",
@@ -69,8 +80,8 @@ export default function Timer({}: Props) {
                                 date: new Date(),
                             });
                         } else {
-                            setTimeRemaining(10);
-                            setTimeSet(10);
+                            setTimeRemaining(TIMER_DEFAULTS.WORK);
+                            setTimeSet(TIMER_DEFAULTS.WORK);
                             addHistory({
                                 id: Math.random().toString(),
                                 type: "work",
